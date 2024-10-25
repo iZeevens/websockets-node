@@ -8,7 +8,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
 
   const userExist = globalDataBase.users.has(name)
 
-  if (userExist && globalDataBase.users.get(name)?.password === password) {
+  if (userExist) {
     const existingUser = globalDataBase.users.get(name)
 
     if (existingUser?.password === password) {
