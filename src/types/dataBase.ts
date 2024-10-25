@@ -1,15 +1,30 @@
 import { WebSocket } from 'ws'
 
-type UserData = {
-  name: string
-  password: string
-  index: number
-}
-
 type RoomUser = {
   name: string
   index: number | string
   ws: WebSocket
+}
+
+type GamePlayer = {
+  idPlayer: number | string
+  ships?: ShipData[]
+}
+
+type ShipData = {
+  position: {
+    x: number
+    y: number
+  }
+  direction: boolean
+  length: number
+  type: 'small' | 'medium' | 'large' | 'huge'
+}
+
+type UserData = {
+  name: string
+  password: string
+  index: number
 }
 
 type RoomData = {
@@ -17,13 +32,9 @@ type RoomData = {
   roomUsers: RoomUser[]
 }
 
-type GamePlayer = {
-  idPlayer: number | string
-}
-
 type GameData = {
   idGame: number | string
   players: GamePlayer[]
 }
 
-export { UserData, RoomData, GameData }
+export { UserData, RoomData, GameData, ShipData }
