@@ -1,18 +1,15 @@
 import { WebSocket } from 'ws'
+import findUser from '../utils/helperFindUser'
 import { IauthData } from '../../types/websocket'
 import { updateRoom } from './handleRoom'
-import { globalDataBase, currentUser } from '../dataBase'
+import { globalDataBase } from '../dataBase'
 
 const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
   const { name, password } = payload
-
-  const userExist = globalDataBase.users.has(name)
+  const userExist = findUser(name)
 
   if (userExist) {
-    const existingUser = globalDataBase.users.get(name)
-
-    if (existingUser?.password === password) {
-      currentUser.name = name
+    if (userExist.password === password) {
       ws.send(
         JSON.stringify({
           type: 'reg',
@@ -31,7 +28,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
       return ws.send(
         JSON.stringify({
           name,
-          index: existingUser?.index,
+          index: userExist.index,
           error: true,
           errorText: 'Password isn`t correct',
         })
@@ -40,8 +37,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
   }
 
   const newIndex = globalDataBase.users.size
-  globalDataBase.users.set(name, { name, password, index: newIndex })
-  currentUser.name = name
+  globalDataBase.users.set(ws, { name, password, index: newIndex })
 
   ws.send(
     JSON.stringify({

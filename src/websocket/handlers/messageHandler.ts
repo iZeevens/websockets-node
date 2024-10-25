@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws'
 import handleAuth from './handleAuth'
-import { createRoom } from './handleRoom'
+import { createRoom, addUserToRoom } from './handleRoom'
 
 export const messageHandler = (ws: WebSocket, message: string) => {
   try {
@@ -11,6 +11,9 @@ export const messageHandler = (ws: WebSocket, message: string) => {
         break
       case 'create_room':
         createRoom(ws)
+        break
+      case 'add_user_to_room':
+        addUserToRoom(ws, JSON.parse(parsedMessage.data).indexRoom)
         break
     }
   } catch (error) {

@@ -1,14 +1,10 @@
-const currentUser = { name: '' }
+import { UserData, RoomData, GameData } from '../types/dataBase'
+import WebSocket from 'ws'
 
 const globalDataBase = {
-  users: new Map<string, { name: string; password: string; index: number }>(),
-  room: new Map<
-    string,
-    {
-      roomId: number | string
-      roomUsers: [{ name: string; index: number | string }]
-    }
-  >(),
+  users: new Map<WebSocket, UserData>(),
+  room: new Map<string, RoomData>(),
+  game: new Map<number, GameData>(),
 }
 
-export { globalDataBase, currentUser }
+export { globalDataBase }
