@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws'
 import { IauthData } from '../../types/websocket'
-import { globalDataBase } from '../dataBase'
+import { updateRoom } from './handleRoom'
+import { globalDataBase, currentUser } from '../dataBase'
 
 const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
   const { name, password } = payload
@@ -11,7 +12,8 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
     const existingUser = globalDataBase.users.get(name)
 
     if (existingUser?.password === password) {
-      return ws.send(
+      currentUser.name = name
+      ws.send(
         JSON.stringify({
           type: 'reg',
           data: JSON.stringify({
@@ -23,6 +25,8 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
           id,
         })
       )
+      updateRoom(ws)
+      return
     } else {
       return ws.send(
         JSON.stringify({
@@ -37,8 +41,9 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
 
   const newIndex = globalDataBase.users.size
   globalDataBase.users.set(name, { name, password, index: newIndex })
+  currentUser.name = name
 
-  return ws.send(
+  ws.send(
     JSON.stringify({
       type: 'reg',
       data: JSON.stringify({
@@ -50,6 +55,8 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
       id,
     })
   )
+  updateRoom(ws)
+  return
 }
 
 export default handleAuth

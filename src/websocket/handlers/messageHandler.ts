@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws'
 import handleAuth from './handleAuth'
+import { createRoom } from './handleRoom'
 
 export const messageHandler = (ws: WebSocket, message: string) => {
   try {
@@ -7,6 +8,10 @@ export const messageHandler = (ws: WebSocket, message: string) => {
     switch (parsedMessage.type) {
       case 'reg':
         handleAuth(ws, JSON.parse(parsedMessage.data), parsedMessage.id)
+        break
+      case 'create_room':
+        createRoom(ws)
+        break
     }
   } catch (error) {
     ws.send(JSON.stringify(error))

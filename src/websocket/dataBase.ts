@@ -1,4 +1,4 @@
-let currentUser: string
+const currentUser = { name: '' }
 
 const globalDataBase = {
   users: new Map<string, { name: string; password: string; index: number }>(),
