@@ -1,6 +1,10 @@
-interface authData {
+interface IauthData {
   name: string
   password: string
 }
 
-export { authData }
+interface IroomData {
+  data: '' | { indexRoom: number | string }
+}
+
+export { IauthData, IroomData }

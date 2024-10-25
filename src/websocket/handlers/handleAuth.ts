@@ -1,35 +1,49 @@
 import { WebSocket } from 'ws'
-import { authData } from '../../types/websocket'
-import globalDataBase from '../dataBase'
+import { IauthData } from '../../types/websocket'
+import { globalDataBase } from '../dataBase'
 
-const auth = (ws: WebSocket, payload: authData, id: number) => {
+const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
   const { name, password } = payload
 
-  const userIndex = globalDataBase.users.findIndex((user) => user.name === name)
+  const userExist = globalDataBase.users.has(name)
 
-  if (userIndex !== -1) {
-    return ws.send(
-      JSON.stringify({
-        name,
-        index: userIndex,
-        error: true,
-        errorText: 'User already exist',
-      })
-    )
+  if (userExist && globalDataBase.users.get(name)?.password === password) {
+    const existingUser = globalDataBase.users.get(name)
+
+    if (existingUser?.password === password) {
+      return ws.send(
+        JSON.stringify({
+          type: 'reg',
+          data: JSON.stringify({
+            name,
+            index: globalDataBase.users.size - 1,
+            error: false,
+            errorText: '',
+          }),
+          id,
+        })
+      )
+    } else {
+      return ws.send(
+        JSON.stringify({
+          name,
+          index: existingUser?.index,
+          error: true,
+          errorText: 'Password isn`t correct',
+        })
+      )
+    }
   }
 
-  globalDataBase.users.push({
-    name,
-    password,
-    index: globalDataBase.users.length,
-  })
+  const newIndex = globalDataBase.users.size
+  globalDataBase.users.set(name, { name, password, index: newIndex })
 
   return ws.send(
     JSON.stringify({
       type: 'reg',
       data: JSON.stringify({
         name,
-        index: globalDataBase.users.length - 1,
+        index: newIndex,
         error: false,
         errorText: '',
       }),
@@ -38,4 +52,4 @@ const auth = (ws: WebSocket, payload: authData, id: number) => {
   )
 }
 
-export default auth
+export default handleAuth
