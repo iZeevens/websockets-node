@@ -1,9 +1,21 @@
 import { globalDataBase } from '../dataBase'
 import { IshipData } from '../../types/websocket'
 
-// const startGame = () => {
-
-// }
+const startGame = (gameId: string) => {
+  const currentSession = globalDataBase.game.get(Number(gameId))
+  currentSession?.players.forEach((player) => {
+    player.ws.send(
+      JSON.stringify({
+        type: 'start_game',
+        data: JSON.stringify({
+          ships: player.ships,
+          currentPlayerIndex: player.idPlayer,
+        }),
+        id: gameId,
+      })
+    )
+  })
+}
 
 const addShips = (payload: IshipData) => {
   const { gameId, indexPlayer, ships } = payload
@@ -20,6 +32,10 @@ const addShips = (payload: IshipData) => {
       ...(currentSession.players[playerIndex].ships || []),
       ...ships,
     ]
+  }
+
+  if (currentSession.players[0].ships && currentSession.players[1].ships) {
+    startGame(gameId.toString())
   }
 }
 

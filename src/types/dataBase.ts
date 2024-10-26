@@ -1,12 +1,13 @@
 import { WebSocket } from 'ws'
 
 type RoomUser = {
+  ws: WebSocket
   name: string
   index: number | string
-  ws: WebSocket
 }
 
 type GamePlayer = {
+  ws: WebSocket
   idPlayer: number | string
   ships?: ShipData[]
 }

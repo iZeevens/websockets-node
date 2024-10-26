@@ -63,8 +63,9 @@ const createGame = (roomId: number | string) => {
   const room = globalDataBase.room.get(roomId.toString())
 
   if (room) {
-    const gamePlayers = room.roomUsers.map((_, index) => ({
+    const gamePlayers = room.roomUsers.map((player, index) => ({
       idPlayer: index === 0 ? idPlayer1 : idPlayer2,
+      ws: player.ws,
     }))
 
     globalDataBase.game.set(idGame, { idGame, players: gamePlayers })
