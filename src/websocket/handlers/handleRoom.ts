@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { globalDataBase } from '../dataBase'
 
 let updateVersion = 1
-const idGame = 1
+let idGame = 1
 
 const updateRoom = (ws: WebSocket) => {
   const roomsOnePlayer = new Map(
@@ -54,7 +54,6 @@ const createRoom = (ws: WebSocket) => {
     })
   )
   updateRoom(ws)
-  return
 }
 
 const createGame = (roomId: number | string) => {
@@ -82,24 +81,27 @@ const createGame = (roomId: number | string) => {
         })
       )
     })
+
+    idGame++
   }
 }
 
 const addUserToRoom = (ws: WebSocket, indexRoom: number | string) => {
-  if (globalDataBase.room.has(indexRoom.toString())) {
-    const room = globalDataBase.room.get(indexRoom.toString())
+  const room = globalDataBase.room.get(indexRoom.toString())
 
-    if (room) {
+  if (room) {
+    const userAlreadyInRoom = room.roomUsers[0].ws === ws
+
+    if (!userAlreadyInRoom) {
       room.roomUsers.push({
         name: globalDataBase.users.get(ws)?.name || '',
         index: globalDataBase.users.get(ws)?.index || '',
         ws: ws,
       })
-    }
 
-    updateRoom(ws)
-    createGame(indexRoom.toString())
-    return
+      updateRoom(ws)
+      createGame(indexRoom.toString())
+    }
   }
 }
 

@@ -11,8 +11,15 @@ interface IshipData {
   indexPlayer: number | string
 }
 
+interface IattackData {
+  gameId: number | string
+  x: number
+  y: number
+  indexPlayer: number | string
+}
+
 interface IroomData {
   data: '' | { indexRoom: number | string }
 }
 
-export { IauthData, IroomData, IshipData }
+export { IauthData, IroomData, IshipData, IattackData }

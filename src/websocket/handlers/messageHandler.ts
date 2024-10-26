@@ -2,6 +2,7 @@ import { WebSocket } from 'ws'
 import handleAuth from './handleAuth'
 import { createRoom, addUserToRoom } from './handleRoom'
 import { addShips } from './handleStartGame'
+// import { attack } from './handleGame'
 
 export const messageHandler = (ws: WebSocket, message: string) => {
   try {
@@ -19,6 +20,9 @@ export const messageHandler = (ws: WebSocket, message: string) => {
       case 'add_ships':
         addShips(JSON.parse(parsedMessage.data))
         break
+      // case 'attack':
+      //   attack(JSON.parse(parsedMessage.data))
+      //   break
     }
   } catch (error) {
     ws.send(JSON.stringify(error))
