@@ -12,14 +12,14 @@ type GamePlayer = {
   ships?: ShipData[]
 }
 
+type Position = { x: number; y: number }
+
 type ShipData = {
-  position: {
-    x: number
-    y: number
-  }
+  position: Position
   direction: boolean
   length: number
   type: 'small' | 'medium' | 'large' | 'huge'
+  hits?: Position[]
 }
 
 type UserData = {
@@ -38,4 +38,4 @@ type GameData = {
   players: GamePlayer[]
 }
 
-export { UserData, RoomData, GameData, ShipData }
+export { UserData, RoomData, GameData, ShipData, GamePlayer }

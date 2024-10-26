@@ -1,9 +1,13 @@
 import { globalDataBase } from '../dataBase'
 import { IshipData } from '../../types/websocket'
+import { turn } from './handleGame'
 
 const startGame = (gameId: string) => {
   const currentSession = globalDataBase.game.get(Number(gameId))
-  currentSession?.players.forEach((player) => {
+
+  if (!currentSession) return
+
+  currentSession.players.forEach((player) => {
     player.ws.send(
       JSON.stringify({
         type: 'start_game',
@@ -15,12 +19,13 @@ const startGame = (gameId: string) => {
       })
     )
   })
+  turn(currentSession?.players, currentSession.players[0].idPlayer)
 }
 
 const addShips = (payload: IshipData) => {
   const { gameId, indexPlayer, ships } = payload
-
   const currentSession = globalDataBase.game.get(Number(gameId))
+
   if (!currentSession) return
 
   const playerIndex = currentSession.players.findIndex(

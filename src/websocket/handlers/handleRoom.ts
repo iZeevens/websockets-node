@@ -2,9 +2,9 @@ import { WebSocket } from 'ws'
 import { randomUUID } from 'node:crypto'
 import { globalDataBase } from '../dataBase'
 
-let updateVersion = 1
 let idGame = 1
 
+//for all players in the app should update
 const updateRoom = (ws: WebSocket) => {
   const roomsOnePlayer = new Map(
     Array.from(globalDataBase.room).filter(
@@ -24,7 +24,7 @@ const updateRoom = (ws: WebSocket) => {
     JSON.stringify({
       type: 'update_room',
       data: JSON.stringify(roomData),
-      id: updateVersion++,
+      id: Date.now(),
     })
   )
 }
