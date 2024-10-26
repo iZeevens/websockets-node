@@ -69,7 +69,7 @@ const attack = (payload: IattackData) => {
                 y,
               },
               currentPlayer: indexPlayer,
-              status: 'hit',
+              status: 'shot',
             }),
             id: Date.now(),
           })
