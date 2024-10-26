@@ -32,50 +32,37 @@ const attack = (payload: IattackData) => {
   console.log(`Player: ${currentPlayer}`)
   console.log(`Enemy Player: ${enemyPlayer}`)
 
-  const hit = enemyPlayer?.ships?.find(
-    (cell) => cell.position.x === x && cell.position.y === y
-  )
+  const hitShip = enemyPlayer?.ships?.find((ship) => {
+    const isVertical = ship.direction
+    const startX = ship.position.x
+    const startY = ship.position.y
+    const endX = isVertical ? startX : startX + ship.length - 1
+    const endY = isVertical ? startY + ship.length - 1 : startY
 
-  if (hit) {
-    const health = hit.length
-    console.log(health)
+    return x >= startX && x <= endX && y >= startY && y <= endY
+  })
 
-    if (health === 1) {
-      game?.players.forEach((player) => {
-        player.ws.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x,
-                y,
-              },
-              currentPlayer: indexPlayer,
-              status: 'killed',
-            }),
-            id: Date.now(),
-          })
-        )
-      })
-    } else {
-      hit.length -= 1
-      game?.players.forEach((player) => {
-        player.ws.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x,
-                y,
-              },
-              currentPlayer: indexPlayer,
-              status: 'shot',
-            }),
-            id: Date.now(),
-          })
-        )
-      })
-    }
+  if (hitShip) {
+    hitShip.length -= 1
+
+    const status = hitShip.length === 0 ? 'killed' : 'shot'
+
+    game?.players.forEach((player) => {
+      player.ws.send(
+        JSON.stringify({
+          type: 'attack',
+          data: JSON.stringify({
+            position: {
+              x,
+              y,
+            },
+            currentPlayer: indexPlayer,
+            status,
+          }),
+          id: Date.now(),
+        })
+      )
+    })
   } else {
     game?.players.forEach((player) => {
       player.ws.send(
