@@ -4,8 +4,7 @@ import { globalDataBase } from '../dataBase'
 
 let idGame = 1
 
-//for all players in the app should update
-const updateRoom = (ws: WebSocket) => {
+const updateRoom = () => {
   const roomsOnePlayer = new Map(
     Array.from(globalDataBase.room).filter(
       ([, value]) => value.roomUsers.length <= 1
@@ -20,13 +19,15 @@ const updateRoom = (ws: WebSocket) => {
     })),
   }))
 
-  ws.send(
-    JSON.stringify({
-      type: 'update_room',
-      data: JSON.stringify(roomData),
-      id: Date.now(),
-    })
-  )
+  globalDataBase.users.forEach((user) => {
+    user.ws.send(
+      JSON.stringify({
+        type: 'update_room',
+        data: JSON.stringify(roomData),
+        id: Date.now(),
+      })
+    )
+  })
 }
 
 const createRoom = (ws: WebSocket) => {
@@ -53,13 +54,14 @@ const createRoom = (ws: WebSocket) => {
       id: indexRoom,
     })
   )
-  updateRoom(ws)
+  updateRoom()
 }
 
 const createGame = (roomId: number | string) => {
   const idPlayer1 = randomUUID()
   const idPlayer2 = randomUUID()
-  const room = globalDataBase.room.get(roomId.toString())
+  roomId = roomId.toString()
+  const room = globalDataBase.room.get(roomId)
 
   if (room) {
     const gamePlayers = room.roomUsers.map((player, index) => ({
@@ -84,6 +86,8 @@ const createGame = (roomId: number | string) => {
       )
     })
 
+    globalDataBase.room.delete(roomId)
+    updateRoom()
     idGame++
   }
 }
@@ -98,10 +102,10 @@ const addUserToRoom = (ws: WebSocket, indexRoom: number | string) => {
       room.roomUsers.push({
         name: globalDataBase.users.get(ws)?.name || '',
         index: globalDataBase.users.get(ws)?.index || '',
-        ws: ws,
+        ws,
       })
 
-      updateRoom(ws)
+      updateRoom()
       createGame(indexRoom.toString())
     }
   }

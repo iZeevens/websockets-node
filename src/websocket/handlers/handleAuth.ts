@@ -22,7 +22,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
           id,
         })
       )
-      updateRoom(ws)
+      updateRoom()
       return
     } else {
       return ws.send(
@@ -37,7 +37,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
   }
 
   const newIndex = globalDataBase.users.size
-  globalDataBase.users.set(ws, { name, password, index: newIndex })
+  globalDataBase.users.set(ws, { name, password, index: newIndex, ws })
 
   ws.send(
     JSON.stringify({
@@ -51,7 +51,7 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
       id,
     })
   )
-  updateRoom(ws)
+  updateRoom()
   return
 }
 

@@ -25,6 +25,7 @@ type ShipData = {
 }
 
 type UserData = {
+  ws: WebSocket
   name: string
   password: string
   index: number
