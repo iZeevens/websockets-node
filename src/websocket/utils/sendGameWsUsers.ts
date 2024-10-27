@@ -12,6 +12,8 @@ function sendGameWsUsers(
   data: object
 ) {
   players.forEach((player) => {
+    if (!player.ws) return
+
     player.ws.send(
       JSON.stringify({
         type,
