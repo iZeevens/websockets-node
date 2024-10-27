@@ -43,9 +43,9 @@ const attack = (payload: IattackData) => {
   })
 
   if (hitShip) {
-    hitShip.length -= 1
+    hitShip.health -= 1
 
-    const status = hitShip.length === 0 ? 'killed' : 'shot'
+    const status = hitShip.health === 0 ? 'killed' : 'shot'
 
     game?.players.forEach((player) => {
       player.ws.send(

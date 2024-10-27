@@ -8,11 +8,13 @@ const startGame = (gameId: string) => {
   if (!currentSession) return
 
   currentSession.players.forEach((player) => {
+    const ships = player.ships?.map((ship) => (ship.health = ship.length))
+
     player.ws.send(
       JSON.stringify({
         type: 'start_game',
         data: JSON.stringify({
-          ships: player.ships,
+          ships,
           currentPlayerIndex: player.idPlayer,
         }),
         id: gameId,

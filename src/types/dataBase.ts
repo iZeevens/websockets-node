@@ -19,6 +19,7 @@ type ShipData = {
   direction: boolean
   length: number
   type: 'small' | 'medium' | 'large' | 'huge'
+  health: number
   hits?: Position[]
 }
 
