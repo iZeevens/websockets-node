@@ -7,7 +7,7 @@ type RoomUser = {
 }
 
 type GamePlayer = {
-  ws: WebSocket
+  ws: WebSocket | null
   idPlayer: number | string
   shots: Set<string>
   score: number

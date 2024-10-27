@@ -3,6 +3,7 @@ import handleAuth from './handleAuth'
 import { createRoom, addUserToRoom } from './handleRoom'
 import { addShips } from './handleStartGame'
 import { attack, randomAttack } from './handleGame'
+import { botRoom } from './handleBot'
 
 export const messageHandler = (ws: WebSocket, message: string) => {
   try {
@@ -25,6 +26,9 @@ export const messageHandler = (ws: WebSocket, message: string) => {
         break
       case 'randomAttack':
         randomAttack(JSON.parse(parsedMessage.data))
+        break
+      case 'single_play':
+        botRoom(ws)
         break
     }
   } catch (error) {

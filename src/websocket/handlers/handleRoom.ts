@@ -2,7 +2,7 @@ import { WebSocket } from 'ws'
 import { randomUUID } from 'node:crypto'
 import { globalDataBase } from '../dataBase'
 
-let idGame = 1
+const idGame = { id: 1 }
 
 const updateRoom = () => {
   const roomsOnePlayer = new Map(
@@ -55,6 +55,8 @@ const createRoom = (ws: WebSocket) => {
     })
   )
   updateRoom()
+
+  return indexRoom
 }
 
 const createGame = (roomId: number | string) => {
@@ -71,7 +73,10 @@ const createGame = (roomId: number | string) => {
       ws: player.ws,
     }))
 
-    globalDataBase.game.set(idGame, { idGame, players: gamePlayers })
+    globalDataBase.game.set(idGame.id, {
+      idGame: idGame.id,
+      players: gamePlayers,
+    })
 
     room.roomUsers.forEach((user, index) => {
       user.ws.send(
@@ -88,7 +93,7 @@ const createGame = (roomId: number | string) => {
 
     globalDataBase.room.delete(roomId)
     updateRoom()
-    idGame++
+    idGame.id++
   }
 }
 
@@ -111,4 +116,4 @@ const addUserToRoom = (ws: WebSocket, indexRoom: number | string) => {
   }
 }
 
-export { createRoom, updateRoom, addUserToRoom }
+export { createRoom, updateRoom, addUserToRoom, idGame }
