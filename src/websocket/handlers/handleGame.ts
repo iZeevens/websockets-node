@@ -49,6 +49,39 @@ const attack = (payload: IattackData) => {
 
     const status = hitShip.health === 0 ? 'killed' : 'shot'
 
+    if (status === 'killed' && currentPlayer) {
+      switch (hitShip.type) {
+        case 'small':
+          currentPlayer.score += 1
+          break
+        case 'medium':
+          currentPlayer.score += 2
+          break
+        case 'huge':
+          currentPlayer.score += 3
+          break
+        case 'large':
+          currentPlayer.score += 4
+          break
+      }
+
+      console.log(currentPlayer.score)
+
+      if (currentPlayer.score === 21) {
+        game?.players.forEach((player) => {
+          player.ws.send(
+            JSON.stringify({
+              type: 'finish',
+              data: JSON.stringify({
+                winPlayer: indexPlayer,
+              }),
+              id: Date.now(),
+            })
+          )
+        })
+      }
+    }
+
     game?.players.forEach((player) => {
       player.ws.send(
         JSON.stringify({

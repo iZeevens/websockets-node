@@ -10,6 +10,7 @@ type GamePlayer = {
   ws: WebSocket
   idPlayer: number | string
   shots: Set<string>
+  score: number
   ships?: ShipData[]
 }
 

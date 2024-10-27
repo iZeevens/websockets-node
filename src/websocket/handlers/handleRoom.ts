@@ -65,6 +65,7 @@ const createGame = (roomId: number | string) => {
     const gamePlayers = room.roomUsers.map((player, index) => ({
       idPlayer: index === 0 ? idPlayer1 : idPlayer2,
       shots: new Set<string>(),
+      score: 0,
       ws: player.ws,
     }))
 
