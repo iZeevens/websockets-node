@@ -1,19 +1,44 @@
 import { IattackData } from '../../types/websocket'
 import { globalDataBase } from '../dataBase'
-import { GamePlayer } from '../../types/dataBase'
+import { GamePlayer, ShipData } from '../../types/dataBase'
+import { sendGameWsUsers, MessageType } from '../utils/sendGameWsUsers'
 
 const turn = (players: GamePlayer[], indexPlayer: number | string) => {
-  players.forEach((player) => {
-    player.ws.send(
-      JSON.stringify({
-        type: 'turn',
-        data: JSON.stringify({
-          currentPlayer: indexPlayer,
-        }),
-        id: Date.now(),
-      })
-    )
+  sendGameWsUsers(players, MessageType.TURN, {
+    currentPlayer: indexPlayer,
   })
+}
+
+const scoreMap: { [key: string]: number } = {
+  small: 1,
+  medium: 2,
+  huge: 3,
+  large: 4,
+}
+
+const winPlayer = (
+  typeShip: string,
+  currentPlayer: GamePlayer,
+  players: GamePlayer[]
+) => {
+  const score = scoreMap[typeShip]
+  if (currentPlayer && score) {
+    currentPlayer.score += score
+
+    if (currentPlayer.score >= 21) {
+      sendGameWsUsers(players, MessageType.WIN, {
+        winPlayer: currentPlayer.idPlayer,
+      })
+    }
+  }
+}
+
+const isShipHit = (ship: ShipData, x: number, y: number): boolean => {
+  const { position, length, direction } = ship
+  const endX = direction ? position.x : position.x + length - 1
+  const endY = direction ? position.y + length - 1 : position.y
+
+  return x >= position.x && x <= endX && y >= position.y && y <= endY
 }
 
 const attack = (payload: IattackData) => {
@@ -22,104 +47,47 @@ const attack = (payload: IattackData) => {
 
   if (!game) return
 
-  const currentPlayer = game.players.find(
+  const players = game.players
+  const currentPlayer = players.find(
     (player) => player.idPlayer === indexPlayer
   )
-  const enemyPlayer = game.players.find(
-    (player) => player.idPlayer !== indexPlayer
-  )
+  const enemyPlayer = players.find((player) => player.idPlayer !== indexPlayer)
 
-  if (enemyPlayer?.shots.has(`${x},${y}`) && currentPlayer) {
-    return turn(game.players, indexPlayer)
+  if (!enemyPlayer || enemyPlayer.shots.has(`${x},${y}`) || !currentPlayer) {
+    return turn(players, indexPlayer)
   }
 
-  const hitShip = enemyPlayer?.ships?.find((ship) => {
-    const isVertical = ship.direction
-    const startX = ship.position.x
-    const startY = ship.position.y
-    const endX = isVertical ? startX : startX + ship.length - 1
-    const endY = isVertical ? startY + ship.length - 1 : startY
-
-    enemyPlayer.shots?.add(`${x},${y}`)
-    return x >= startX && x <= endX && y >= startY && y <= endY
-  })
+  enemyPlayer.shots.add(`${x},${y}`)
+  const hitShip = enemyPlayer.ships?.find((ship) => isShipHit(ship, x, y))
 
   if (hitShip) {
     hitShip.health -= 1
-
     const status = hitShip.health === 0 ? 'killed' : 'shot'
 
-    if (status === 'killed' && currentPlayer) {
-      switch (hitShip.type) {
-        case 'small':
-          currentPlayer.score += 1
-          break
-        case 'medium':
-          currentPlayer.score += 2
-          break
-        case 'huge':
-          currentPlayer.score += 3
-          break
-        case 'large':
-          currentPlayer.score += 4
-          break
-      }
-
-      console.log(currentPlayer.score)
-
-      if (currentPlayer.score === 21) {
-        game?.players.forEach((player) => {
-          player.ws.send(
-            JSON.stringify({
-              type: 'finish',
-              data: JSON.stringify({
-                winPlayer: indexPlayer,
-              }),
-              id: Date.now(),
-            })
-          )
-        })
-      }
+    if (status === 'killed') {
+      winPlayer(hitShip.type, currentPlayer, players)
     }
 
-    game?.players.forEach((player) => {
-      player.ws.send(
-        JSON.stringify({
-          type: 'attack',
-          data: JSON.stringify({
-            position: {
-              x,
-              y,
-            },
-            currentPlayer: indexPlayer,
-            status,
-          }),
-          id: Date.now(),
-        })
-      )
+    sendGameWsUsers(players, MessageType.ATTACK, {
+      position: {
+        x,
+        y,
+      },
+      currentPlayer: indexPlayer,
+      status,
     })
   } else {
-    game?.players.forEach((player) => {
-      player.ws.send(
-        JSON.stringify({
-          type: 'attack',
-          data: JSON.stringify({
-            position: {
-              x,
-              y,
-            },
-            currentPlayer: indexPlayer,
-            status: 'miss',
-          }),
-          id: Date.now(),
-        })
-      )
+    sendGameWsUsers(players, MessageType.ATTACK, {
+      position: {
+        x,
+        y,
+      },
+      currentPlayer: indexPlayer,
+      status: 'miss',
     })
   }
 
-  if (game?.players && enemyPlayer?.idPlayer) {
-    turn(game.players, enemyPlayer.idPlayer)
-  }
+  turn(players, enemyPlayer.idPlayer)
 }
 
 export { attack, turn }
