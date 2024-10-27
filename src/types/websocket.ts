@@ -18,8 +18,13 @@ interface IattackData {
   indexPlayer: number | string
 }
 
+interface IrandomAttackData {
+  gameId: number | string
+  indexPlayer: number | string
+}
+
 interface IroomData {
   data: '' | { indexRoom: number | string }
 }
 
-export { IauthData, IroomData, IshipData, IattackData }
+export { IauthData, IroomData, IshipData, IattackData, IrandomAttackData }

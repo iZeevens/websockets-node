@@ -1,6 +1,6 @@
 import { globalDataBase } from '../dataBase'
 import { IshipData } from '../../types/websocket'
-import { turn } from './handleGame'
+import { sendGameWsUsers, MessageType } from '../utils/sendGameWsUsers'
 
 const startGame = (gameId: string) => {
   const currentSession = globalDataBase.game.get(Number(gameId))
@@ -21,7 +21,10 @@ const startGame = (gameId: string) => {
       })
     )
   })
-  turn(currentSession?.players, currentSession.players[0].idPlayer)
+
+  sendGameWsUsers(currentSession?.players, MessageType.TURN, {
+    currentPlayer: currentSession.players[0].idPlayer,
+  })
 }
 
 const addShips = (payload: IshipData) => {

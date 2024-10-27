@@ -1,37 +1,8 @@
-import { IattackData } from '../../types/websocket'
+import { IattackData, IrandomAttackData } from '../../types/websocket'
 import { globalDataBase } from '../dataBase'
-import { GamePlayer, ShipData } from '../../types/dataBase'
+import { ShipData } from '../../types/dataBase'
 import { sendGameWsUsers, MessageType } from '../utils/sendGameWsUsers'
-
-const turn = (players: GamePlayer[], indexPlayer: number | string) => {
-  sendGameWsUsers(players, MessageType.TURN, {
-    currentPlayer: indexPlayer,
-  })
-}
-
-const scoreMap: { [key: string]: number } = {
-  small: 1,
-  medium: 2,
-  huge: 3,
-  large: 4,
-}
-
-const winPlayer = (
-  typeShip: string,
-  currentPlayer: GamePlayer,
-  players: GamePlayer[]
-) => {
-  const score = scoreMap[typeShip]
-  if (currentPlayer && score) {
-    currentPlayer.score += score
-
-    if (currentPlayer.score >= 21) {
-      sendGameWsUsers(players, MessageType.WIN, {
-        winPlayer: currentPlayer.idPlayer,
-      })
-    }
-  }
-}
+import winPlayer from './handleWin'
 
 const isShipHit = (ship: ShipData, x: number, y: number): boolean => {
   const { position, length, direction } = ship
@@ -39,6 +10,25 @@ const isShipHit = (ship: ShipData, x: number, y: number): boolean => {
   const endY = direction ? position.y + length - 1 : position.y
 
   return x >= position.x && x <= endX && y >= position.y && y <= endY
+}
+
+const randomAttack = (payload: IrandomAttackData) => {
+  const { gameId, indexPlayer } = payload
+  const enemyPlayer = globalDataBase.game
+    .get(Number(gameId))
+    ?.players.find((player) => player.idPlayer !== indexPlayer)?.shots
+  let coordinate
+  let x, y
+
+  if (!enemyPlayer) return
+
+  do {
+    x = Math.floor(Math.random() * 11)
+    y = Math.floor(Math.random() * 11)
+    coordinate = `${x},${y}`
+  } while (enemyPlayer.has(coordinate))
+
+  attack({ gameId, x, y, indexPlayer })
 }
 
 const attack = (payload: IattackData) => {
@@ -53,8 +43,12 @@ const attack = (payload: IattackData) => {
   )
   const enemyPlayer = players.find((player) => player.idPlayer !== indexPlayer)
 
-  if (!enemyPlayer || enemyPlayer.shots.has(`${x},${y}`) || !currentPlayer) {
-    return turn(players, indexPlayer)
+  if (!enemyPlayer || !currentPlayer) return
+
+  if (enemyPlayer.shots.has(`${x},${y}`)) {
+    return sendGameWsUsers(players, MessageType.TURN, {
+      currentPlayer: indexPlayer,
+    })
   }
 
   enemyPlayer.shots.add(`${x},${y}`)
@@ -87,7 +81,9 @@ const attack = (payload: IattackData) => {
     })
   }
 
-  turn(players, enemyPlayer.idPlayer)
+  sendGameWsUsers(players, MessageType.TURN, {
+    currentPlayer: enemyPlayer.idPlayer,
+  })
 }
 
-export { attack, turn }
+export { attack, randomAttack }

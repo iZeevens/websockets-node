@@ -2,7 +2,7 @@ import { WebSocket } from 'ws'
 import handleAuth from './handleAuth'
 import { createRoom, addUserToRoom } from './handleRoom'
 import { addShips } from './handleStartGame'
-import { attack } from './handleGame'
+import { attack, randomAttack } from './handleGame'
 
 export const messageHandler = (ws: WebSocket, message: string) => {
   try {
@@ -22,6 +22,9 @@ export const messageHandler = (ws: WebSocket, message: string) => {
         break
       case 'attack':
         attack(JSON.parse(parsedMessage.data))
+        break
+      case 'randomAttack':
+        randomAttack(JSON.parse(parsedMessage.data))
         break
     }
   } catch (error) {
