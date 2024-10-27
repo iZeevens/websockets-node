@@ -9,6 +9,7 @@ type RoomUser = {
 type GamePlayer = {
   ws: WebSocket
   idPlayer: number | string
+  shots: Set<string>
   ships?: ShipData[]
 }
 
@@ -20,7 +21,6 @@ type ShipData = {
   length: number
   type: 'small' | 'medium' | 'large' | 'huge'
   health: number
-  hits?: Position[]
 }
 
 type UserData = {

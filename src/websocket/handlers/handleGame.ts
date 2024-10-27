@@ -29,8 +29,9 @@ const attack = (payload: IattackData) => {
     (player) => player.idPlayer !== indexPlayer
   )
 
-  console.log(`Player: ${currentPlayer}`)
-  console.log(`Enemy Player: ${enemyPlayer}`)
+  if (enemyPlayer?.shots.has(`${x},${y}`) && currentPlayer) {
+    return turn(game.players, indexPlayer)
+  }
 
   const hitShip = enemyPlayer?.ships?.find((ship) => {
     const isVertical = ship.direction
@@ -39,6 +40,7 @@ const attack = (payload: IattackData) => {
     const endX = isVertical ? startX : startX + ship.length - 1
     const endY = isVertical ? startY + ship.length - 1 : startY
 
+    enemyPlayer.shots?.add(`${x},${y}`)
     return x >= startX && x <= endX && y >= startY && y <= endY
   })
 
