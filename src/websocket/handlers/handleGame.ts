@@ -12,6 +12,34 @@ const isShipHit = (ship: ShipData, x: number, y: number): boolean => {
   return x >= position.x && x <= endX && y >= position.y && y <= endY
 }
 
+const missAroundShip = (ship: ShipData) => {
+  const { position, length, direction } = ship
+  const cells = []
+  const startX = position.x - 1
+  const startY = position.y - 1
+  const endX = direction ? position.x : position.x + length - 1
+  const endY = direction ? position.y + length - 1 : position.y
+
+  console.log(length)
+  console.log(`end postion x: ${endX}`)
+  console.log(`end postion y: ${endY}`)
+
+  for (let i = startX; i <= endX + 1; i++) {
+    for (let j = startY; j <= endY + 1; j++) {
+      const isShip =
+        i >= position.x && i <= endX && j >= position.y && j <= endY
+
+      if (i > 10 || j > 10 || i < 0 || j < 0 || isShip) {
+        continue
+      }
+
+      cells.push({ x: i, y: j })
+    }
+  }
+
+  return cells
+}
+
 const randomAttack = (payload: IrandomAttackData) => {
   const { gameId, indexPlayer } = payload
   const enemyPlayer = globalDataBase.game
@@ -59,6 +87,21 @@ const attack = (payload: IattackData) => {
     const status = hitShip.health === 0 ? 'killed' : 'shot'
 
     if (status === 'killed') {
+      if (hitShip.type === 'huge') {
+        const cellMissHugeShip = missAroundShip(hitShip)
+        cellMissHugeShip.forEach((cell) => {
+          const { x, y } = cell
+
+          sendGameWsUsers(players, MessageType.ATTACK, {
+            position: {
+              x,
+              y,
+            },
+            currentPlayer: indexPlayer,
+            status: 'miss',
+          })
+        })
+      }
       winPlayer(hitShip.type, currentPlayer, players)
     }
 
