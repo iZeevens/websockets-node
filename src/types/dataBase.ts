@@ -11,6 +11,7 @@ type GamePlayer = {
   idPlayer: number | string
   shots: Set<string>
   score: number
+  type?: 'bot'
   ships?: ShipData[]
 }
 
@@ -20,7 +21,7 @@ type ShipData = {
   position: Position
   direction: boolean
   length: number
-  type: 'small' | 'medium' | 'large' | 'huge'
+  type: string
   health: number
 }
 

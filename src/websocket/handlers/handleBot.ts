@@ -1,15 +1,40 @@
 import { WebSocket } from 'ws'
 import { globalDataBase } from '../dataBase'
 import { idGame } from './handleRoom'
+import { randomAttack } from './handleGame'
+import { GamePlayer } from '../../types/dataBase'
+import generateShips from '../utils/generateShips'
+
+const botAttack = (
+  bot: GamePlayer,
+  gameId: string | number,
+  indexPlayer: string | number
+) => {
+  if (bot.type === 'bot') {
+    const payload = {
+      gameId,
+      indexPlayer,
+    }
+
+    randomAttack(payload)
+  }
+}
 
 const botRoom = (ws: WebSocket) => {
-  const idPlayer = 0
+  const idPlayer = 1
 
   globalDataBase.game.set(idGame.id, {
     idGame: idGame.id,
     players: [
       { ws, idPlayer, shots: new Set(), score: 0 },
-      { ws: null, idPlayer: 0, shots: new Set(), score: 0 },
+      {
+        ws: null,
+        type: 'bot',
+        idPlayer: 0,
+        shots: new Set(),
+        score: 0,
+        ships: generateShips(),
+      },
     ],
   })
 
@@ -23,8 +48,7 @@ const botRoom = (ws: WebSocket) => {
       id: Date.now(),
     })
   )
-
   idGame.id++
 }
 
-export { botRoom }
+export { botRoom, botAttack }

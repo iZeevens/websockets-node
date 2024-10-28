@@ -1,6 +1,7 @@
 import { IattackData, IrandomAttackData } from '../../types/websocket'
 import { globalDataBase } from '../dataBase'
 import { ShipData } from '../../types/dataBase'
+import { botAttack } from './handleBot'
 import { sendGameWsUsers, MessageType } from '../utils/sendGameWsUsers'
 import winPlayer from './handleWin'
 
@@ -19,10 +20,6 @@ const missAroundShip = (ship: ShipData) => {
   const startY = position.y - 1
   const endX = direction ? position.x : position.x + length - 1
   const endY = direction ? position.y + length - 1 : position.y
-
-  console.log(length)
-  console.log(`end postion x: ${endX}`)
-  console.log(`end postion y: ${endY}`)
 
   for (let i = startX; i <= endX + 1; i++) {
     for (let j = startY; j <= endY + 1; j++) {
@@ -51,10 +48,12 @@ const randomAttack = (payload: IrandomAttackData) => {
   if (!enemyPlayer) return
 
   do {
-    x = Math.floor(Math.random() * 11)
-    y = Math.floor(Math.random() * 11)
+    x = Math.floor(Math.random() * 10)
+    y = Math.floor(Math.random() * 10)
     coordinate = `${x},${y}`
   } while (enemyPlayer.has(coordinate))
+
+  console.log(coordinate)
 
   attack({ gameId, x, y, indexPlayer })
 }
@@ -127,6 +126,8 @@ const attack = (payload: IattackData) => {
   sendGameWsUsers(players, MessageType.TURN, {
     currentPlayer: enemyPlayer.idPlayer,
   })
+
+  botAttack(enemyPlayer, gameId, enemyPlayer.idPlayer)
 }
 
 export { attack, randomAttack }
