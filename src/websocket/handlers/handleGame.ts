@@ -97,6 +97,7 @@ const attack = (payload: IattackData) => {
             currentPlayer: indexPlayer,
             status: 'miss',
           })
+          enemyPlayer.shots.add(`${x},${y}`)
         })
       }
       winPlayer(hitShip.type, currentPlayer, players)
