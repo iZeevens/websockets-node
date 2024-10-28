@@ -53,8 +53,6 @@ const randomAttack = (payload: IrandomAttackData) => {
     coordinate = `${x},${y}`
   } while (enemyPlayer.has(coordinate))
 
-  console.log(coordinate)
-
   attack({ gameId, x, y, indexPlayer })
 }
 

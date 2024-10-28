@@ -10,29 +10,28 @@ const handleAuth = (ws: WebSocket, payload: IauthData, id: number) => {
 
   if (userExist) {
     if (userExist.password === password) {
-      ws.send(
-        JSON.stringify({
-          type: 'reg',
-          data: JSON.stringify({
-            name,
-            index: globalDataBase.users.size - 1,
-            error: false,
-            errorText: '',
-          }),
-          id,
-        })
-      )
-      updateRoom()
-      return
-    } else {
-      return ws.send(
-        JSON.stringify({
+      const result = {
+        type: 'reg',
+        data: JSON.stringify({
           name,
-          index: userExist.index,
-          error: true,
-          errorText: 'Password isn`t correct',
-        })
-      )
+          index: globalDataBase.users.size - 1,
+          error: false,
+          errorText: '',
+        }),
+        id,
+      }
+      ws.send(JSON.stringify(result))
+      updateRoom()
+      console.log(result)
+    } else {
+      const result = {
+        name,
+        index: userExist.index,
+        error: true,
+        errorText: 'Password isn`t correct',
+      }
+      ws.send(JSON.stringify(result))
+      console.log(result)
     }
   }
 

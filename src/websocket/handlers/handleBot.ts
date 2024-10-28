@@ -38,16 +38,16 @@ const botRoom = (ws: WebSocket) => {
     ],
   })
 
-  ws.send(
-    JSON.stringify({
-      type: 'create_game',
-      data: JSON.stringify({
-        idGame: idGame.id,
-        idPlayer,
-      }),
-      id: Date.now(),
-    })
-  )
+  const result = {
+    type: 'create_game',
+    data: JSON.stringify({
+      idGame: idGame.id,
+      idPlayer,
+    }),
+    id: Date.now(),
+  }
+  ws.send(JSON.stringify(result))
+  console.log(result)
   idGame.id++
 }
 

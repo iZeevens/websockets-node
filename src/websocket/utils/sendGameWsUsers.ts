@@ -13,14 +13,15 @@ function sendGameWsUsers(
 ) {
   players.forEach((player) => {
     if (!player.ws) return
+    const result = {
+      type,
+      data: JSON.stringify(data),
+      id: Date.now(),
+    }
 
-    player.ws.send(
-      JSON.stringify({
-        type,
-        data: JSON.stringify(data),
-        id: Date.now(),
-      })
-    )
+    player.ws.send(JSON.stringify(result))
+
+    console.log(result)
   })
 }
 

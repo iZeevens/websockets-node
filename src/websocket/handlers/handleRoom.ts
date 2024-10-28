@@ -20,13 +20,14 @@ const updateRoom = () => {
   }))
 
   globalDataBase.users.forEach((user) => {
-    user.ws.send(
-      JSON.stringify({
-        type: 'update_room',
-        data: JSON.stringify(roomData),
-        id: Date.now(),
-      })
-    )
+    const result = {
+      type: 'update_room',
+      data: JSON.stringify(roomData),
+      id: Date.now(),
+    }
+
+    user.ws.send(JSON.stringify(result))
+    console.log(result)
   })
 }
 
@@ -47,15 +48,15 @@ const createRoom = (ws: WebSocket) => {
   }
 
   const indexRoom = globalDataBase.room.size
-  ws.send(
-    JSON.stringify({
-      type: 'create_room',
-      data: '',
-      id: indexRoom,
-    })
-  )
+  const result = {
+    type: 'create_room',
+    data: '',
+    id: indexRoom,
+  }
+  ws.send(JSON.stringify(result))
   updateRoom()
 
+  console.log(result)
   return indexRoom
 }
 
@@ -79,16 +80,17 @@ const createGame = (roomId: number | string) => {
     })
 
     room.roomUsers.forEach((user, index) => {
-      user.ws.send(
-        JSON.stringify({
-          type: 'create_game',
-          data: JSON.stringify({
-            idGame,
-            idPlayer: index === 0 ? idPlayer1 : idPlayer2,
-          }),
-          id: idGame,
-        })
-      )
+      const result = {
+        type: 'create_game',
+        data: JSON.stringify({
+          idGame,
+          idPlayer: index === 0 ? idPlayer1 : idPlayer2,
+        }),
+        id: idGame,
+      }
+
+      user.ws.send(JSON.stringify(result))
+      console.log(result)
     })
 
     globalDataBase.room.delete(roomId)

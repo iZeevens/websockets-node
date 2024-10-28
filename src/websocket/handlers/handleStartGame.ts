@@ -11,16 +11,17 @@ const startGame = (gameId: string) => {
     const ships = player.ships?.map((ship) => (ship.health = ship.length))
     if (!player.ws) return
 
-    player.ws.send(
-      JSON.stringify({
-        type: 'start_game',
-        data: JSON.stringify({
-          ships,
-          currentPlayerIndex: player.idPlayer,
-        }),
-        id: gameId,
-      })
-    )
+    const result = {
+      type: 'start_game',
+      data: JSON.stringify({
+        ships,
+        currentPlayerIndex: player.idPlayer,
+      }),
+      id: gameId,
+    }
+
+    player.ws.send(JSON.stringify(result))
+    console.log(result)
   })
 
   sendGameWsUsers(currentSession?.players, MessageType.TURN, {
