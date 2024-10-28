@@ -46,6 +46,8 @@ const addShips = (payload: IshipData) => {
     ]
   }
 
+  console.log(currentSession.players)
+
   if (currentSession.players[0].ships && currentSession.players[1].ships) {
     startGame(gameId.toString())
   }

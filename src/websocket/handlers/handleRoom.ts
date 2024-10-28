@@ -83,10 +83,10 @@ const createGame = (roomId: number | string) => {
       const result = {
         type: 'create_game',
         data: JSON.stringify({
-          idGame,
+          idGame: idGame.id,
           idPlayer: index === 0 ? idPlayer1 : idPlayer2,
         }),
-        id: idGame,
+        id: idGame.id,
       }
 
       user.ws.send(JSON.stringify(result))
